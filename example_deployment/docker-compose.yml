@@ -1,0 +1,46 @@
+services:
+    # the actual Minecraft server
+    Minecraft:
+        image: itzg/minecraft-server
+        container_name: "Minecraft"
+        volumes:
+            - "./data:/data"
+        ports:
+            - "25565:25565"
+        tty: true
+        stdin_open: true
+        environment:
+            EULA: TRUE
+            ENABLE_ROLLING_LOGS: TRUE
+            OVERRIDE_SERVER_PROPERTIES: FALSE
+        restart: unless-stopped
+
+    # the web server to serve the web app
+    MinecraftMapMarkerWeb:
+        image: nginx
+        container_name: "MinecraftMapMarkerWeb"
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - "./minecraft_map_marker/:/usr/share/nginx/html:ro"
+        restart: unless-stopped
+
+    # the map renderer producing the files to be served by the web server
+    # this container always updates the web files when it receives a sighup signal
+    MinecraftMapMarkerRenderer:
+        image: chrisbesch/minecraft_map_marker
+        container_name: "MinecraftMapMarker"
+        environment:
+            CRON_TIME: "* * * * *"
+        volumes:
+            - "./data/world:/world:ro"
+            - "./minecraft_map_marker/:/web"
+        restart: unless-stopped
+
+    # send a sighup signal every minute to the minecraft_map_marker container
+    DockerCron:
+        image: chrisbesch/docker_cron
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock:rw"
+

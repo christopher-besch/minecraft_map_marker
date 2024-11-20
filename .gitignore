@@ -133,3 +133,6 @@ dist
 src/*.js
 
 src/data/
+
+example_deployment/data/
+example_deployment/minecraft_map_marker/
