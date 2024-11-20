@@ -1,3 +1,63 @@
+#container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#coordinate-input {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: [col1-start] 100px [col2-start] 100px [col3-start] 100px [col3-end];
+    grid-template-rows: [row1-start] auto [row2-start] auto [row3-start] auto [row3-end];
+}
+
+#overworld-label {
+    background-color: grey;
+    grid-column: col1-start;
+    grid-row: row1-start;
+}
+
+#overworld-x {
+    background-color: grey;
+    grid-column: col2-start;
+    grid-row: row1-start;
+}
+
+#overworld-z {
+    background-color: grey;
+    grid-column: col3-start;
+    grid-row: row1-start;
+}
+
+#nether-label {
+    background-color: grey;
+    grid-column: col1-start;
+    grid-row: row2-start;
+}
+
+#nether-x {
+    background-color: grey;
+    grid-column: col2-start;
+    grid-row: row2-start;
+}
+
+#nether-z {
+    background-color: grey;
+    grid-column: col3-start;
+    grid-row: row2-start;
+}
+
+#height-label {
+    background-color: grey;
+    grid-column: col1-start;
+    grid-row: row3-start;
+}
+
+#height {
+    background-color: grey;
+    grid-column: col2-start / col3-end;
+    grid-row: row3-start;
+}
+
 #map {
-    height: 180px;
+    height: 700px;
 }
