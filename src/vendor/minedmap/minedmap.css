@@ -1,0 +1,14 @@
+/* MinedMap Viewer CSS (commit 31de0dc0bdff094cb237b068572eb2892bd5b9d8) */
+/* Copyright Matthias Schiffer */
+/* Licensed under MIT License */
+
+/* shortened by Christopher Besch */
+
+.overzoomed {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -o-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
