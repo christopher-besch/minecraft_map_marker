@@ -6,27 +6,17 @@
     <meta name="viewport" content="width=device-width" />
     <title>Minecraft Map Marker</title>
     <link rel="stylesheet" href="style.css" />
+
+    <!-- leaftlet -->
+    <link rel="stylesheet" href="./vendor/leaflet/leaflet.css" />
+    <script src="./vendor/leaflet/leaflet.js"></script>
 </head>
 
 <body>
     <h1>Minecraft Map Marker</h1>
-    <form>
-        <fieldset>
-            <legend>Enter your period start and end date</legend>
-            <p>
-                <label for="start-date">Start date</label>
-                <input type="date" id="start-date" required />
-            </p>
-            <p>
-                <label for="end-date">End date</label>
-                <input type="date" id="end-date" required />
-            </p>
-        </fieldset>
-        <p>
-            <button type="submit">Add Period</button>
-        </p>
-    </form>
-    <section id="past-periods"></section>
+
+    <div id="map"></div>
+
     <script src="minecraft_map_marker.js" defer></script>
 </body>
 
