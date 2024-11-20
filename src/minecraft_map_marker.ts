@@ -37,6 +37,8 @@ let description_field = document.getElementById('description') as HTMLInputEleme
 let color_field = document.getElementById('color') as HTMLInputElement;
 let place_pin_button = document.getElementById('place-pin') as HTMLButtonElement;
 
+let temp_marker = L.marker([0, 0]);
+
 function getHeightInput(): number | null {
     if (!height_field.checkValidity()) {
         return null;
@@ -49,7 +51,7 @@ function getOverworldCoordsInput(): OverworldCoords | null {
     }
     const x = parseInt(overworld_x_field.value);
     const z = parseInt(overworld_z_field.value);
-    if (!x || !z) {
+    if (isNaN(x) || isNaN(z)) {
         return null;
     }
     return { x, y: getHeightInput(), z, __brand: 'OverworldCoords' };
@@ -60,7 +62,7 @@ function getNetherCoordsInput(): NetherCoords | null {
     }
     const x = parseInt(nether_x_field.value);
     const z = parseInt(nether_z_field.value);
-    if (!x || !z) {
+    if (isNaN(x) || isNaN(z)) {
         return null;
     }
     return { x, y: getHeightInput(), z, __brand: 'NetherCoords' };
@@ -86,20 +88,22 @@ function getPinInput(): Pin | null {
 
     return { coords, title, description, color };
 }
-function setPinInput(pin: Pin) {
-    setCoords(pin.coords);
+function setPinInput(pin: Pin, map: L.Map) {
+    setCoords(pin.coords, map);
     title_field.value = pin.title;
     description_field.value = pin.description;
     color_field.value = pin.color;
 }
 
-function setCoords(overworld_coords: OverworldCoords) {
+function setCoords(overworld_coords: OverworldCoords, map: L.Map) {
     const nether_coords = overworldToNetherCoords(overworld_coords);
     overworld_x_field.value = String(overworld_coords.x);
     overworld_z_field.value = String(overworld_coords.z);
     nether_x_field.value = String(nether_coords.x);
     nether_z_field.value = String(nether_coords.z);
     height_field.value = overworld_coords.y === null ? '' : String(overworld_coords.y);
+
+    temp_marker.setLatLng([-overworld_coords.z, overworld_coords.x]);
 }
 
 function initializeForm(map: L.Map) {
@@ -107,13 +111,13 @@ function initializeForm(map: L.Map) {
         const coords = getOverworldCoordsInput();
         if (coords === null)
             return;
-        setCoords(coords);
+        setCoords(coords, map);
     }
     function updateCoordsFromNether() {
         const coords = getNetherCoordsInput();
         if (coords === null)
             return;
-        setCoords(netherToOverworldCoords(coords));
+        setCoords(netherToOverworldCoords(coords), map);
     }
 
     overworld_x_field.addEventListener('keyup', updateCoordsFromOverworld);
@@ -139,7 +143,6 @@ function initializeForm(map: L.Map) {
         icon_div.className = 'pin';
         icon_div.appendChild(title);
 
-        console.log('do something');
         return L.divIcon({
             html: icon_div,
             // scale as much as is needed for the text
@@ -167,10 +170,11 @@ function initializeForm(map: L.Map) {
 
 const initialize = async () => {
     const map = await createMap();
+    temp_marker.addTo(map);
 
     map.on('click', function(e) {
         // TODO: maybe set y to null
-        setCoords({ x: Math.round(e.latlng.lng), y: getHeightInput(), z: Math.round(-e.latlng.lat), __brand: 'OverworldCoords' });
+        setCoords({ x: Math.round(e.latlng.lng), y: getHeightInput(), z: Math.round(-e.latlng.lat), __brand: 'OverworldCoords' }, map);
     });
 
     initializeForm(map);
