@@ -131,3 +131,5 @@ dist
 
 # files are compiled by typescript
 src/*.js
+
+src/data/
