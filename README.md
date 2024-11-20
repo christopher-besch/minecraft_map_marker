@@ -4,5 +4,5 @@
 ## Options for Backend
 - https://github.com/BlueMap-Minecraft/BlueMap
 - https://github.com/overviewer/Minecraft-Overviewer
-- https://github.com/neocturne/MinedMap?tab=readme-ov-file
+- https://github.com/neocturne/MinedMap
 - https://github.com/GregoryAM-SP/The-Minecraft-Overviewer
