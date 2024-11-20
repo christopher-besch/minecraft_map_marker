@@ -7,7 +7,7 @@
     display: grid;
     grid-gap: 5px;
     grid-template-columns: [col1-start] 100px [col2-start] 100px [col3-start] 100px [col3-end];
-    grid-template-rows: [row1-start] auto [row2-start] auto [row3-start] auto [row3-end];
+    grid-template-rows: [row1-start] auto [row2-start] auto [row3-start] auto [row4-start] auto [row5-start] auto [row6-start] auto [row6-end];
 }
 
 #overworld-label {
@@ -58,6 +58,50 @@
     grid-row: row3-start;
 }
 
+#title-label {
+    background-color: grey;
+    grid-column: col1-start;
+    grid-row: row4-start;
+}
+
+#title {
+    background-color: grey;
+    grid-column: col2-start / col3-end;
+    grid-row: row4-start;
+}
+
+#description-label {
+    background-color: grey;
+    grid-column: col1-start;
+    grid-row: row5-start;
+}
+
+#description {
+    background-color: grey;
+    grid-column: col2-start / col3-end;
+    grid-row: row5-start;
+}
+
+#color-label {
+    background-color: grey;
+    grid-column: col1-start;
+    grid-row: row6-start;
+}
+
+#color {
+    background-color: grey;
+    grid-column: col2-start / col3-end;
+    grid-row: row6-start;
+}
+
 #map {
     height: 700px;
+}
+
+.pin-title {
+    background-color: white;
+    margin-left: -50%;
+    padding: 0 5px;
+    width: max-content;
+    height: max-content;
 }
