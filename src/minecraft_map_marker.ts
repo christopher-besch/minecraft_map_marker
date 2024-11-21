@@ -1,5 +1,5 @@
 // from MinedMap
-declare var createMap: () => Promise<L.Map>;
+declare var createMap: () => Promise<[L.Map, L.Layer]>;
 
 type NetherCoords = {
     x: number;
@@ -24,7 +24,6 @@ type Pin = {
     coords: OverworldCoords;
     title: string;
     description: string;
-    color: string;
 }
 
 let overworld_x_field = document.getElementById('overworld-x') as HTMLInputElement;
@@ -34,10 +33,10 @@ let nether_z_field = document.getElementById('nether-z') as HTMLInputElement
 let height_field = document.getElementById('height') as HTMLInputElement
 let title_field = document.getElementById('title') as HTMLInputElement
 let description_field = document.getElementById('description') as HTMLInputElement
-let color_field = document.getElementById('color') as HTMLInputElement;
 let place_pin_button = document.getElementById('place-pin') as HTMLButtonElement;
 
 let temp_marker = L.marker([0, 0]);
+let pin_layer_group = L.layerGroup([]);
 
 function getHeightInput(): number | null {
     if (!height_field.checkValidity()) {
@@ -82,17 +81,12 @@ function getPinInput(): Pin | null {
         return null;
     const description = description_field.value;
 
-    if (!color_field.checkValidity())
-        return null;
-    const color = color_field.value;
-
-    return { coords, title, description, color };
+    return { coords, title, description };
 }
 function setPinInput(pin: Pin, map: L.Map) {
     setCoords(pin.coords, map);
     title_field.value = pin.title;
     description_field.value = pin.description;
-    color_field.value = pin.color;
 }
 
 function setCoords(overworld_coords: OverworldCoords, map: L.Map) {
@@ -132,7 +126,6 @@ function initializeForm(map: L.Map) {
         title.textContent = pin.title;
         title.className = 'pin-title';
 
-        // TODO: use color
         let img = document.createElement('img');
         img.src = icon_path;
         img.className = 'pin-img';
@@ -163,14 +156,16 @@ function initializeForm(map: L.Map) {
         L.marker([-pin.coords.z, pin.coords.x], {
             icon: createPinIcon(pin),
             title: pin.description,
-        }).addTo(map);
+        }).addTo(pin_layer_group);
     }
     place_pin_button.addEventListener('click', placePin);
 }
 
 const initialize = async () => {
-    const map = await createMap();
+    const [map, light_layer] = await createMap();
     temp_marker.addTo(map);
+    pin_layer_group.addTo(map);
+    L.control.layers({}, { 'Illumination': light_layer, 'Pins': pin_layer_group }).addTo(map);
 
     map.on('click', function(e) {
         // TODO: maybe set y to null

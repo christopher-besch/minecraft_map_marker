@@ -110,7 +110,6 @@ createMap = async function() {
     const mapLayer = new MinedMapLayer(mipmaps, 'map');
     mapLayer.addTo(map);
     const lightLayer = new MinedMapLayer(mipmaps, 'light');
-    L.control.layers({}, { 'Illumination': lightLayer }).addTo(map);
 
-    return map;
+    return [map, lightLayer];
 }
