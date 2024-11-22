@@ -1,0 +1,23 @@
+{
+    "name": "Minecraft Map Marker",
+    "short_name": "minecraft_map_marker",
+    "description": "Place Pins on our Minecraft Server",
+    "start_url": "/",
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "icons/minecraft_map_marker.png",
+            "sizes": "48x48"
+        },
+        {
+            "src": "icons/minecraft_map_marker_192.png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "icons/minecraft_map_marker_512.png",
+            "sizes": "512x512"
+        }
+    ]
+}

@@ -193,7 +193,7 @@ namespace Pins {
         TempPinInput.setTempCoords({ x: 0, y: null, z: 0, __brand: 'OverworldCoords' });
     }
     export function getControlLayers(): { [id: string]: L.Layer } {
-        return { 'Pins': leaflet_user_pin_group, 'Default Pins': leaflet_const_pin_group };
+        return { 'User Pins': leaflet_user_pin_group, 'Default Pins': leaflet_const_pin_group };
     }
 }
 
