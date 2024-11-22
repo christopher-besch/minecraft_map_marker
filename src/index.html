@@ -22,7 +22,7 @@
         <div id="map"></div>
 
         <div id="control-container">
-            <div id="user-input">
+            <div id="temp-user-input">
                 <form>
                     <fieldset id="coordinate-input">
                         <legend>Enter new Coordinate (or Click on Map)</legend>
@@ -49,7 +49,13 @@
                 </form>
             </div>
 
-            <div id="pin-list"></div>
+            <div id="pin-list-container">
+                <div id="pin-list"></div>
+                <div class="export-button-container">
+                    <button id="export-all">Export All User Pins</button>
+                    <i id="export-all-msg">Copied to Clipboard</i>
+                </div>
+            </div>
         </div>
     </div>
 

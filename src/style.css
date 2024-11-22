@@ -4,6 +4,24 @@
     padding-bottom: 30px;
 }
 
+#map {
+    height: 70vh;
+    cursor: crosshair;
+}
+
+#map * {
+    cursor: crosshair;
+}
+
+.pin-title {
+    background-color: white;
+    /* the icon has a width of 25px */
+    margin-left: calc(-50% + 25px);
+    padding: 0 5px;
+    width: max-content;
+    height: max-content;
+}
+
 #control-container {
     display: flex;
     flex-direction: row;
@@ -109,21 +127,8 @@
     grid-row: row6-start;
 }
 
-#map {
-    height: 70vh;
-    cursor: crosshair;
-}
-
-#map * {
-    cursor: crosshair;
-}
-
-.pin-title {
-    background-color: white;
-    margin-left: -50%;
-    padding: 0 5px;
-    width: max-content;
-    height: max-content;
+#pin-list-container {
+    width: 400px;
 }
 
 #pin-list {
@@ -165,4 +170,15 @@
 .pin-buttons {
     display: flex;
     flex-direction: column;
+}
+
+.export-button-container {
+    margin-top: 30px;
+
+    display: flex;
+    align-items: center;
+}
+
+.export-button-container i {
+    display: none;
 }

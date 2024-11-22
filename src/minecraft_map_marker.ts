@@ -179,6 +179,8 @@ namespace Pins {
 
 namespace PinList {
     let pin_list = document.getElementById('pin-list') as HTMLDivElement;
+    let export_all_button = document.getElementById('export-all') as HTMLButtonElement;
+    let export_all_msg = document.getElementById('export-all-msg') as HTMLButtonElement;
 
     // lookup of each user pin's item
     let user_pin_items: Map<Pin, HTMLDivElement> = new Map();
@@ -229,19 +231,33 @@ namespace PinList {
         delete_button.textContent = "delete";
         if (pin_type == PinType.UserPin) {
             delete_button.addEventListener('click', (e) => {
+                e.stopPropagation();
+
                 // move the temp marker to the to be deleted pin
                 // (in case the deletion was a mistake the coordinates aren't lost)
                 TempPinInput.setTempPin(pin);
 
-                e.stopPropagation();
                 Pins.deleteUserPin(pin);
                 deleteUserPin(pin);
             });
         }
 
+        let export_button = document.createElement('button');
+        export_button.textContent = "export";
+        export_button.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            exportPins([pin]);
+            export_button.textContent = 'copied to clipboard';
+            setTimeout(() => {
+                export_button.textContent = 'export';
+            }, 2500);
+        });
+
         let pin_buttons = document.createElement('div');
         pin_buttons.classList.add('pin-buttons');
         pin_buttons.appendChild(delete_button);
+        pin_buttons.appendChild(export_button);
 
         let pin_item = document.createElement('div');
         pin_item.classList.add('pin-item');
@@ -266,6 +282,19 @@ namespace PinList {
         pin_list.appendChild(pin_item);
         // don't use scrollIntoView as that scroll the entire page
         pin_list.scrollTo({ top: pin_item.offsetTop, behavior: 'smooth' })
+    }
+
+
+    function exportPins(pins: Pin[]) {
+        navigator.clipboard.writeText(JSON.stringify(pins));
+    }
+
+    export function initialize() {
+        export_all_button.addEventListener('click', () => {
+            exportPins(Array.from(user_pin_items.keys()));
+            export_all_msg.style.display = 'block';
+            setTimeout(() => { export_all_msg.style.display = 'none'; }, 2500);
+        });
     }
 }
 
@@ -370,6 +399,8 @@ namespace TempPinInput {
                 return;
             }
             Pins.saveUserPin(pin);
+            title_field.value = '';
+            description_field.value = '';
         }
         save_pin_button.addEventListener('click', savePinFromTemp);
     }
@@ -385,6 +416,7 @@ const initialize = async () => {
     });
 
     TempPinInput.initialize();
+    PinList.initialize();
 }
 
 initialize();
