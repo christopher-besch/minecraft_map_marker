@@ -19,34 +19,38 @@
     <div id="container">
         <h1>Minecraft Map Marker</h1>
 
-        <div>
-            <form>
-                <fieldset id="coordinate-input">
-                    <legend>Enter new Coordinate (or Click on Map)</legend>
-                    <label id="overworld-label">Overworld</label>
-                    <input type="text" inputmode="numeric" pattern="-?\d+" id="overworld-x" maxlength="9" />
-                    <input type="text" inputmode="numeric" pattern="-?\d+" id="overworld-z" maxlength="9" />
-
-                    <label id="nether-label">Nether</label>
-                    <input type="text" inputmode="numeric" pattern="-?\d+" id="nether-x" maxlength="9" />
-                    <input type="text" inputmode="numeric" pattern="-?\d+" id="nether-z" maxlength="9" />
-
-                    <label id="height-label" for="height">Height</label>
-                    <input type="text" inputmode="numeric" pattern="-?\d+" id="height" maxlength="9" />
-
-                    <label id="title-label" for="titel">Title</label>
-                    <input type="text" id="title" />
-
-                    <label id="description-label" for="description">Description</label>
-                    <textarea id="description" rows="4" cols="50"></textarea>
-                </fieldset>
-                <p>
-                    <button type="button" id="save-pin">Save Pin</button>
-                </p>
-            </form>
-        </div>
-
         <div id="map"></div>
+
+        <div id="control-container">
+            <div id="user-input">
+                <form>
+                    <fieldset id="coordinate-input">
+                        <legend>Enter new Coordinate (or Click on Map)</legend>
+                        <label id="overworld-label">Overworld</label>
+                        <input type="text" inputmode="numeric" pattern="-?\d+" id="overworld-x" maxlength="9" />
+                        <input type="text" inputmode="numeric" pattern="-?\d+" id="overworld-z" maxlength="9" />
+
+                        <label id="nether-label">Nether</label>
+                        <input type="text" inputmode="numeric" pattern="-?\d+" id="nether-x" maxlength="9" />
+                        <input type="text" inputmode="numeric" pattern="-?\d+" id="nether-z" maxlength="9" />
+
+                        <label id="height-label" for="height">Height</label>
+                        <input type="text" inputmode="numeric" pattern="-?\d+" id="height" maxlength="9" />
+
+                        <label id="title-label" for="titel">Title</label>
+                        <input type="text" id="title" />
+
+                        <label id="description-label" for="description">Description</label>
+                        <textarea id="description" rows="4" cols="50"></textarea>
+                    </fieldset>
+                    <p>
+                        <button type="button" id="save-pin">Save Pin</button>
+                    </p>
+                </form>
+            </div>
+
+            <div id="pin-list"></div>
+        </div>
     </div>
 
     <script src="minecraft_map_marker.js" defer></script>

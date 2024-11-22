@@ -4,6 +4,20 @@
     padding-bottom: 30px;
 }
 
+#control-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+
+    margin-top: 30px;
+}
+
+@media only screen and (max-width: 600px) {
+    #control-container {
+        flex-direction: column;
+    }
+}
+
 #coordinate-input {
     display: grid;
     grid-gap: 5px;
@@ -97,6 +111,11 @@
 
 #map {
     height: 70vh;
+    cursor: crosshair;
+}
+
+#map * {
+    cursor: crosshair;
 }
 
 .pin-title {
@@ -105,4 +124,45 @@
     padding: 0 5px;
     width: max-content;
     height: max-content;
+}
+
+#pin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    padding-right: 20px;
+    height: 50vh;
+    overflow: scroll;
+}
+
+.pin-item {
+    border: 2px solid black;
+    padding: 5px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.pin-item .pin-coordinates {
+    display: inline-grid;
+    gap: 5px;
+    grid-template-columns: auto auto auto auto;
+    grid-template-rows: auto auto;
+}
+
+.pin-item.selected {
+    background-color: dark-grey;
+    background-color: grey;
+}
+
+.pin-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.pin-buttons {
+    display: flex;
+    flex-direction: column;
 }
