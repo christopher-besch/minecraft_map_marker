@@ -1,9 +1,6 @@
 // from MinedMap
 declare var createMap: () => Promise<[L.Map, L.Layer]>;
 
-///////////
-// types //
-///////////
 type NetherCoords = {
     x: number;
     y: number | null;
@@ -34,7 +31,6 @@ namespace Coords {
     export function overworldToNetherCoords(coords: OverworldCoords): NetherCoords {
         return { x: Math.round(coords.x / 8), y: coords.y, z: Math.round(coords.z / 8), __brand: 'NetherCoords' };
     }
-
     export function overworldCoordsToLeaflet(coords: OverworldCoords): L.LatLngExpression {
         return [-coords.z, coords.x];
     }
@@ -123,7 +119,6 @@ namespace Pins {
                 leaflet_const_pins.set(pin, marker);
                 break;
         }
-        PinList.addPinItem(pin, pin_type);
     }
 
     export function setTempPinCoords(coords: OverworldCoords) {
@@ -133,6 +128,7 @@ namespace Pins {
     export function saveUserPin(pin: Pin) {
         addPinToMap(pin, PinType.UserPin);
         syncUserPinStorage();
+        PinList.addPinItem(pin, PinType.UserPin);
         focusPin(pin);
     }
 
@@ -164,8 +160,14 @@ namespace Pins {
     export function initialize(p_map: L.Map) {
         map = p_map;
 
-        getUserPins().forEach(pin => { addPinToMap(pin, PinType.UserPin); });
-        getConstPins().forEach(pin => { addPinToMap(pin, PinType.ConstPin); });
+        getUserPins().forEach(pin => {
+            addPinToMap(pin, PinType.UserPin);
+            PinList.addPinItem(pin, PinType.UserPin);
+        });
+        getConstPins().forEach(pin => {
+            addPinToMap(pin, PinType.ConstPin);
+            PinList.addPinItem(pin, PinType.UserPin);
+        });
 
         temp_marker.addTo(map);
         leaflet_user_pin_group.addTo(map);
@@ -248,7 +250,7 @@ namespace PinList {
             e.stopPropagation();
 
             exportPinsToClipboard([pin]);
-            export_button.textContent = 'Copied to clipboard';
+            export_button.textContent = 'copied to clipboard';
             setTimeout(() => {
                 export_button.textContent = 'Export';
             }, 2500);
@@ -298,7 +300,6 @@ namespace PinList {
             }
             // TODO: check this is actually a pin
             Pins.saveUserPin(pin);
-            addPinItem(pin, PinType.UserPin);
         });
     }
 
