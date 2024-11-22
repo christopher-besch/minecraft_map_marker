@@ -96,7 +96,7 @@ namespace Pins {
         function createPinIcon(pin: Pin): L.DivIcon {
             const icon_path = './vendor/leaflet/images/marker-icon.png';
 
-            let title = document.createElement('h3');
+            let title = document.createElement('h4');
             title.textContent = pin.title;
             title.className = 'pin-title';
 
@@ -193,7 +193,7 @@ namespace Pins {
         TempPinInput.setTempCoords({ x: 0, y: null, z: 0, __brand: 'OverworldCoords' });
     }
     export function getControlLayers(): { [id: string]: L.Layer } {
-        return { 'User Pins': leaflet_user_pin_group, 'Default Pins': leaflet_const_pin_group };
+        return { 'User Pins': leaflet_user_pin_group, 'Const Pins': leaflet_const_pin_group };
     }
 }
 
