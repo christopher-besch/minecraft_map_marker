@@ -44,16 +44,17 @@ namespace Pins {
     // the user can't change these, except for hiding all
     let leaflet_const_pin_group = L.layerGroup([]);
 
-    function retrieveUserPinsFromStorage(): Pin[] {
+    // TODO: use with Pin Overview
+    export function getUserPins(): Pin[] {
         const raw_pins = localStorage.getItem(PIN_STORAGE_ID);
         if (raw_pins === null)
             return [];
         return JSON.parse(raw_pins);
     }
-    function storeUserPinsToStorage(pins: Pin[]) {
+    function setUserPins(pins: Pin[]) {
         localStorage.setItem(PIN_STORAGE_ID, JSON.stringify(pins));
     }
-    function retrieveConstPinsFromServer(): Pin[] {
+    export function getConstPins(): Pin[] {
         // TODO: implement
         return [];
     }
@@ -109,16 +110,10 @@ namespace Pins {
 
     export function saveUserPin(pin: Pin) {
         addPinToMap(pin, PinType.UserPin);
-        storeUserPinsToStorage(retrieveUserPinsFromStorage().concat([pin]));
+        setUserPins(getUserPins().concat([pin]));
     }
 
     // TODO: use with Pin Overview
-    export function getUserPins(): Iterator<Pin> {
-        return leaflet_user_pins.keys();
-    }
-    export function getConstPins(): Iterator<Pin> {
-        return leaflet_const_pins.keys();
-    }
     export function focusPin(pin: Pin, is_const_pin: boolean) {
         // TODO: implement
     }
@@ -127,8 +122,8 @@ namespace Pins {
     }
 
     export function initialize() {
-        retrieveUserPinsFromStorage().forEach(pin => { addPinToMap(pin, PinType.UserPin); });
-        retrieveConstPinsFromServer().forEach(pin => { addPinToMap(pin, PinType.ConstPin); });
+        getUserPins().forEach(pin => { addPinToMap(pin, PinType.UserPin); });
+        getConstPins().forEach(pin => { addPinToMap(pin, PinType.ConstPin); });
     }
     export function addTo(map: L.Map) {
         temp_marker.addTo(map);
