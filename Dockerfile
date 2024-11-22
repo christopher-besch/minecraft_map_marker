@@ -2,16 +2,18 @@
 FROM debian AS builder
 
 RUN apt-get update && apt-get install -y nodejs npm
+RUN npm install -g typescript
 
 WORKDIR /minecraft_map_marker
-COPY ./src src
 COPY ./package.json .
 COPY ./package-lock.json .
+
+RUN npm install
+
+COPY ./src src
 COPY ./tsconfig.json .
 
-RUN npm install -g typescript && \
-    npm install && \
-    tsc --build && rm src/*.ts
+RUN tsc --build && rm src/*.ts
 
 # install the MinedMap renderer and prepare things for the actual deployment
 FROM debian
