@@ -203,12 +203,12 @@ namespace PinList {
         pin_coordinates.innerHTML = `
         <div>Overworld</div>
         <div>${overworld_coords.x}</div>
-        <div>${overworld_coords.y}</div>
+        <div>${overworld_coords.y === null ? '~' : overworld_coords.y}</div>
         <div>${overworld_coords.z}</div>
 
         <div>Nether</div>
         <div>${nether_coords.x}</div>
-        <div>${nether_coords.y}</div>
+        <div>${nether_coords.y === null ? '~' : nether_coords.y}</div>
         <div>${nether_coords.z}</div>
         `;
 
