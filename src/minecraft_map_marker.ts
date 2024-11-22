@@ -198,6 +198,17 @@ namespace PinList {
         pin_list.removeChild(pin_item);
     }
 
+    function setButtonMsg(button: HTMLButtonElement, msg: string) {
+        const default_text = button.textContent;
+        const default_disabled = button.disabled;
+        button.disabled = true;
+        button.textContent = msg;
+        setTimeout(() => {
+            button.textContent = default_text;
+            button.disabled = default_disabled;
+        }, 2500);
+    }
+
     export function addPinItem(pin: Pin, pin_type: PinType) {
         let overworld_coords = pin.coords;
         let nether_coords = Coords.overworldToNetherCoords(overworld_coords);
@@ -246,14 +257,16 @@ namespace PinList {
 
         let export_button = document.createElement('button');
         export_button.textContent = "Export";
-        export_button.addEventListener('click', (e) => {
+        export_button.addEventListener('click', async (e) => {
             e.stopPropagation();
 
-            exportPinsToClipboard([pin]);
-            export_button.textContent = 'copied to clipboard';
-            setTimeout(() => {
-                export_button.textContent = 'Export';
-            }, 2500);
+            try {
+                await exportPinsToClipboard([pin]);
+            } catch {
+                setButtonMsg(export_button, 'Clipboard denied!');
+                return;
+            }
+            setButtonMsg(export_button, 'Copied to Clipboard');
         });
 
         let pin_buttons = document.createElement('div');
@@ -303,20 +316,26 @@ namespace PinList {
         });
     }
 
-    function exportPinsToClipboard(pins: Pin[]) {
-        navigator.clipboard.writeText(JSON.stringify(pins));
+    const exportPinsToClipboard = async function(pins: Pin[]) {
+        await navigator.clipboard.writeText(JSON.stringify(pins));
     }
 
     export function initialize() {
-        export_all_button.addEventListener('click', () => {
-            exportPinsToClipboard(Array.from(user_pin_items.keys()));
-            export_all_button.textContent = 'Copied to clipboard';
-            setTimeout(() => {
-                export_all_button.textContent = 'Export All User Pins';
-            }, 2500);
+        export_all_button.addEventListener('click', async () => {
+            try {
+                await exportPinsToClipboard(Array.from(user_pin_items.keys()));
+            } catch {
+                setButtonMsg(export_all_button, 'Clipboard denied!');
+                return;
+            }
+            setButtonMsg(export_all_button, 'Copied to Clipboard');
         });
-        import_button.addEventListener('click', () => {
-            importPinsFromClipboard();
+        import_button.addEventListener('click', async () => {
+            try {
+                await importPinsFromClipboard();
+            } catch {
+                setButtonMsg(import_button, 'Failed to Import!');
+            }
         });
     }
 }
