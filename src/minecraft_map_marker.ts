@@ -180,7 +180,7 @@ namespace Pins {
 namespace PinList {
     let pin_list = document.getElementById('pin-list') as HTMLDivElement;
     let export_all_button = document.getElementById('export-all') as HTMLButtonElement;
-    let export_all_msg = document.getElementById('export-all-msg') as HTMLButtonElement;
+    let import_button = document.getElementById('import') as HTMLButtonElement;
 
     // lookup of each user pin's item
     let user_pin_items: Map<Pin, HTMLDivElement> = new Map();
@@ -228,7 +228,7 @@ namespace PinList {
         pin_content.appendChild(description);
 
         let delete_button = document.createElement('button');
-        delete_button.textContent = "delete";
+        delete_button.textContent = "Delete";
         if (pin_type == PinType.UserPin) {
             delete_button.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -243,14 +243,14 @@ namespace PinList {
         }
 
         let export_button = document.createElement('button');
-        export_button.textContent = "export";
+        export_button.textContent = "Export";
         export_button.addEventListener('click', (e) => {
             e.stopPropagation();
 
-            exportPins([pin]);
+            exportPinsToClipboard([pin]);
             export_button.textContent = 'copied to clipboard';
             setTimeout(() => {
-                export_button.textContent = 'export';
+                export_button.textContent = 'Export';
             }, 2500);
         });
 
@@ -284,16 +284,38 @@ namespace PinList {
         pin_list.scrollTo({ top: pin_item.offsetTop, behavior: 'smooth' })
     }
 
+    const importPinsFromClipboard = async function() {
+        const text = await navigator.clipboard.readText();
+        const pins = JSON.parse(text) as Pin[];
+        if (!Array.isArray(pins)) {
+            console.error(`trying to load non-array data: ${pins}`);
+            return;
+        }
+        pins.forEach(pin => {
+            if (typeof pin !== 'object') {
+                console.error(`trying to load non-pin data: ${pin}`);
+                return;
+            }
+            // TODO: check this is actually a pin
+            Pins.saveUserPin(pin);
+            addPinItem(pin, PinType.UserPin);
+        });
+    }
 
-    function exportPins(pins: Pin[]) {
+    function exportPinsToClipboard(pins: Pin[]) {
         navigator.clipboard.writeText(JSON.stringify(pins));
     }
 
     export function initialize() {
         export_all_button.addEventListener('click', () => {
-            exportPins(Array.from(user_pin_items.keys()));
-            export_all_msg.style.display = 'block';
-            setTimeout(() => { export_all_msg.style.display = 'none'; }, 2500);
+            exportPinsToClipboard(Array.from(user_pin_items.keys()));
+            export_all_button.textContent = 'copied to clipboard';
+            setTimeout(() => {
+                export_all_button.textContent = 'Export All User Pins';
+            }, 2500);
+        });
+        import_button.addEventListener('click', () => {
+            importPinsFromClipboard();
         });
     }
 }

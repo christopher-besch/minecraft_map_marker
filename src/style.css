@@ -172,13 +172,8 @@
     flex-direction: column;
 }
 
-.export-button-container {
+.pin-list-buttons-container {
     margin-top: 30px;
 
     display: flex;
-    align-items: center;
-}
-
-.export-button-container i {
-    display: none;
 }
