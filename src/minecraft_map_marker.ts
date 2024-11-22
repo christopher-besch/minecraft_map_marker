@@ -229,6 +229,10 @@ namespace PinList {
         delete_button.textContent = "delete";
         if (pin_type == PinType.UserPin) {
             delete_button.addEventListener('click', (e) => {
+                // move the temp marker to the to be deleted pin
+                // (in case the deletion was a mistake the coordinates aren't lost)
+                TempPinInput.setTempPin(pin);
+
                 e.stopPropagation();
                 Pins.deleteUserPin(pin);
                 deleteUserPin(pin);
@@ -246,7 +250,6 @@ namespace PinList {
         pin_item.appendChild(pin_buttons);
 
         pin_item.addEventListener('click', () => {
-            console.log('click');
             Pins.focusPin(pin);
             TempPinInput.setTempPin(pin);
         });
