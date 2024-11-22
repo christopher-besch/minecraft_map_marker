@@ -248,7 +248,7 @@ namespace PinList {
             e.stopPropagation();
 
             exportPinsToClipboard([pin]);
-            export_button.textContent = 'copied to clipboard';
+            export_button.textContent = 'Copied to clipboard';
             setTimeout(() => {
                 export_button.textContent = 'Export';
             }, 2500);
@@ -309,7 +309,7 @@ namespace PinList {
     export function initialize() {
         export_all_button.addEventListener('click', () => {
             exportPinsToClipboard(Array.from(user_pin_items.keys()));
-            export_all_button.textContent = 'copied to clipboard';
+            export_all_button.textContent = 'Copied to clipboard';
             setTimeout(() => {
                 export_all_button.textContent = 'Export All User Pins';
             }, 2500);
