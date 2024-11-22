@@ -1,14 +1,36 @@
+h1 {
+    font-size: 30px;
+    margin-bottom: 20px;
+    font-weight: 1000;
+    text-align: center;
+}
+
+h2 {
+    font-size: 25px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    /* border-bottom: 2px solid black; */
+}
+
 :root {
     /* disable zooming on mobile */
     /* this is confusing with tha map */
     touch-action: pan-x pan-y;
     height: 100%;
+
+    font-family: sans-serif;
 }
 
 #container {
     max-width: 1200px;
     margin: 0 auto;
-    padding-bottom: 30px;
+    padding-top: 15px;
 }
 
 #map {
@@ -31,22 +53,34 @@
 
 #control-container {
     display: flex;
+    gap: 10px;
     flex-direction: row;
     justify-content: space-evenly;
-
-    margin-top: 30px;
+    padding: 20px;
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
     #control-container {
         flex-direction: column;
+        align-items: center;
     }
+
+    #control-container>div {
+        width: 90%;
+    }
+}
+
+#temp-user-input {
+    border: 1px solid grey;
+    border-radius: 3px;
+    padding: 10px;
+    height: fit-content;
 }
 
 #coordinate-input {
     display: grid;
     grid-gap: 5px;
-    grid-template-columns: [col1-start] 100px [col2-start] 100px [col3-start] 100px [col3-end];
+    grid-template-columns: [col1-start] auto [col2-start] 100px [col3-start] 100px [col3-end];
     grid-template-rows: [row1-start] auto [row2-start] auto [row3-start] auto [row4-start] auto [row5-start] auto [row6-start] auto [row6-end];
 }
 
@@ -121,7 +155,12 @@
 }
 
 #pin-list-container {
-    width: 400px;
+    border: 1px solid grey;
+    border-radius: 3px;
+    padding: 10px;
+    height: fit-content;
+
+    /* width: 400px; */
 }
 
 #pin-list {
@@ -136,18 +175,13 @@
 
 .pin-item {
     border: 2px solid black;
+    border-radius: 3px;
     padding: 5px;
 
     display: flex;
     flex-direction: row;
+    gap: 10px;
     justify-content: space-between;
-}
-
-.pin-item .pin-coordinates {
-    display: inline-grid;
-    gap: 5px;
-    grid-template-columns: auto auto auto auto;
-    grid-template-rows: auto auto;
 }
 
 .pin-content {
@@ -155,8 +189,16 @@
     flex-direction: column;
 }
 
+.pin-item .pin-coordinates {
+    display: inline-grid;
+    gap: 5px 10px;
+    grid-template-columns: 90px auto auto auto;
+    grid-template-rows: auto auto;
+}
+
 .pin-buttons {
     display: flex;
+    gap: 5px;
     flex-direction: column;
 }
 

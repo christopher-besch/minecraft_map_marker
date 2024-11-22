@@ -9,14 +9,16 @@
     <link rel="manifest" href="./minecraft_map_marker.json" />
     <link rel="icon" href="icons/minecraft_map_marker.png" />
 
-    <link rel="stylesheet" href="style.css" />
-
+    <!-- reset css -->
+    <link rel="stylesheet" href="./vendor/reset_css/reset.css" />
     <!-- leaftlet -->
     <link rel="stylesheet" href="./vendor/leaflet/leaflet.css" />
     <script src="./vendor/leaflet/leaflet.js"></script>
     <!-- MinedMap -->
     <link rel="stylesheet" href="./vendor/minedmap/minedmap.css" />
     <script src="./vendor/minedmap/minedmap.js" defer></script>
+
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
@@ -28,17 +30,17 @@
         <div id="control-container">
             <div id="temp-user-input">
                 <form>
-                    <fieldset id="coordinate-input">
-                        <legend>New Pin</legend>
-                        <label id="overworld-label">Overworld</label>
+                    <h2>New Pin</h2>
+                    <div id="coordinate-input">
+                        <label id="overworld-label">Overworld: x z</label>
                         <input type="text" inputmode="numeric" pattern="-?\d+" id="overworld-x" maxlength="9" />
                         <input type="text" inputmode="numeric" pattern="-?\d+" id="overworld-z" maxlength="9" />
 
-                        <label id="nether-label">Nether</label>
+                        <label id="nether-label">Nether: x z</label>
                         <input type="text" inputmode="numeric" pattern="-?\d+" id="nether-x" maxlength="9" />
                         <input type="text" inputmode="numeric" pattern="-?\d+" id="nether-z" maxlength="9" />
 
-                        <label id="height-label" for="height">Height</label>
+                        <label id="height-label" for="height">Height: y</label>
                         <input type="text" inputmode="numeric" pattern="-?\d+" id="height" maxlength="9" />
 
                         <label id="title-label" for="titel">Title</label>
@@ -46,7 +48,7 @@
 
                         <label id="description-label" for="description">Description</label>
                         <textarea id="description" rows="4" cols="50"></textarea>
-                    </fieldset>
+                    </div>
                     <p>
                         <button type="button" id="save-pin">Save Pin</button>
                     </p>
@@ -54,6 +56,7 @@
             </div>
 
             <div id="pin-list-container">
+                <h2>Pin List</h2>
                 <div id="pin-list"></div>
                 <div class="pin-list-buttons-container">
                     <button id="export-all">Export All Pins</button>
