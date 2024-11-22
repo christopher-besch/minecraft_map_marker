@@ -131,6 +131,7 @@ dist
 
 # files are compiled by typescript
 src/*.js
+src/const_pins.json
 
 src/data/
 

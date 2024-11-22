@@ -67,9 +67,25 @@ namespace Pins {
     function syncUserPinStorage() {
         setUserPins(Array.from(leaflet_user_pins.keys()));
     }
-    export function getConstPins(): Pin[] {
-        // TODO: implement
-        return [];
+    export const getConstPins = async function(): Promise<Pin[]> {
+        const pins = await fetch('./const_pins.json', { cache: 'no-store' }).then((resp) => {
+            if (!resp.ok) {
+                throw new Error(`fetch const_pins.json failed: ${resp.status}`);
+            }
+            return resp.json();
+        }) as Pin[];
+        if (!Array.isArray(pins)) {
+            console.error(`trying to load non-array data from const_pins.json: ${pins}`);
+            return [];
+        }
+        if (!pins.every(pin => {
+            // TODO: check pin is actualy of type Pin
+            return typeof pin === 'object';
+        })) {
+            console.error(`trying to load non-pin data from const_pins.json: ${pins}`);
+            return [];
+        }
+        return pins;
     }
 
     function addPinToMap(pin: Pin, pin_type: PinType) {
@@ -164,9 +180,11 @@ namespace Pins {
             addPinToMap(pin, PinType.UserPin);
             PinList.addPinItem(pin, PinType.UserPin);
         });
-        getConstPins().forEach(pin => {
-            addPinToMap(pin, PinType.ConstPin);
-            PinList.addPinItem(pin, PinType.UserPin);
+        getConstPins().then((pins) => {
+            pins.forEach(pin => {
+                addPinToMap(pin, PinType.ConstPin);
+                PinList.addPinItem(pin, PinType.ConstPin);
+            })
         });
 
         temp_marker.addTo(map);
@@ -241,18 +259,24 @@ namespace PinList {
         pin_content.appendChild(description);
 
         let delete_button = document.createElement('button');
-        delete_button.textContent = "Delete";
-        if (pin_type == PinType.UserPin) {
-            delete_button.addEventListener('click', (e) => {
-                e.stopPropagation();
+        switch (pin_type) {
+            case PinType.UserPin:
+                delete_button.textContent = "Delete";
+                delete_button.addEventListener('click', (e) => {
+                    e.stopPropagation();
 
-                // move the temp marker to the to be deleted pin
-                // (in case the deletion was a mistake the coordinates aren't lost)
-                TempPinInput.setTempPin(pin);
+                    // move the temp marker to the to be deleted pin
+                    // (in case the deletion was a mistake the coordinates aren't lost)
+                    TempPinInput.setTempPin(pin);
 
-                Pins.deleteUserPin(pin);
-                deleteUserPin(pin);
-            });
+                    Pins.deleteUserPin(pin);
+                    deleteUserPin(pin);
+                });
+                break;
+            case PinType.ConstPin:
+                delete_button.textContent = "Const Pins can't be deleted";
+                delete_button.disabled = true;
+                break;
         }
 
         let export_button = document.createElement('button');

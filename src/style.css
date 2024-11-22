@@ -44,85 +44,71 @@
 }
 
 #overworld-label {
-    background-color: grey;
     grid-column: col1-start;
     grid-row: row1-start;
 }
 
 #overworld-x {
-    background-color: grey;
     grid-column: col2-start;
     grid-row: row1-start;
 }
 
 #overworld-z {
-    background-color: grey;
     grid-column: col3-start;
     grid-row: row1-start;
 }
 
 #nether-label {
-    background-color: grey;
     grid-column: col1-start;
     grid-row: row2-start;
 }
 
 #nether-x {
-    background-color: grey;
     grid-column: col2-start;
     grid-row: row2-start;
 }
 
 #nether-z {
-    background-color: grey;
     grid-column: col3-start;
     grid-row: row2-start;
 }
 
 #height-label {
-    background-color: grey;
     grid-column: col1-start;
     grid-row: row3-start;
 }
 
 #height {
-    background-color: grey;
     grid-column: col2-start / col3-end;
     grid-row: row3-start;
 }
 
 #title-label {
-    background-color: grey;
     grid-column: col1-start;
     grid-row: row4-start;
 }
 
 #title {
-    background-color: grey;
     grid-column: col2-start / col3-end;
     grid-row: row4-start;
 }
 
 #description-label {
-    background-color: grey;
     grid-column: col1-start;
     grid-row: row5-start;
 }
 
 #description {
-    background-color: grey;
     grid-column: col2-start / col3-end;
     grid-row: row5-start;
 }
 
 #color-label {
-    background-color: grey;
     grid-column: col1-start;
     grid-row: row6-start;
 }
 
 #color {
-    background-color: grey;
     grid-column: col2-start / col3-end;
     grid-row: row6-start;
 }
@@ -155,11 +141,6 @@
     gap: 5px;
     grid-template-columns: auto auto auto auto;
     grid-template-rows: auto auto;
-}
-
-.pin-item.selected {
-    background-color: dark-grey;
-    background-color: grey;
 }
 
 .pin-content {
