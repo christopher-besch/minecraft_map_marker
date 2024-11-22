@@ -9,18 +9,22 @@ type NetherCoords = {
     y: number | null;
     z: number;
     __brand: 'NetherCoords';
-};
+}
 type OverworldCoords = {
     x: number;
     y: number | null;
     z: number;
     __brand: 'OverworldCoords';
-};
+}
 
 type Pin = {
     coords: OverworldCoords;
     title: string;
     description: string;
+}
+enum PinType {
+    UserPin,
+    ConstPin,
 }
 
 namespace Pins {
@@ -54,7 +58,7 @@ namespace Pins {
         return [];
     }
 
-    function addPinToMap(pin: Pin, is_const_pin: boolean) {
+    function addPinToMap(pin: Pin, pin_type: PinType) {
         function createPinIcon(pin: Pin): L.DivIcon {
             const icon_path = './vendor/leaflet/images/marker-icon.png';
 
@@ -87,13 +91,15 @@ namespace Pins {
             icon: createPinIcon(pin),
             title: pin.description,
         });
-        if (is_const_pin) {
-            marker.addTo(leaflet_const_pin_group);
-            leaflet_const_pins.set(pin, marker);
-        } else {
-            // is user pin
-            marker.addTo(leaflet_user_pin_group);
-            leaflet_user_pins.set(pin, marker);
+        switch (pin_type) {
+            case PinType.UserPin:
+                marker.addTo(leaflet_user_pin_group);
+                leaflet_user_pins.set(pin, marker);
+                break;
+            case PinType.ConstPin:
+                marker.addTo(leaflet_const_pin_group);
+                leaflet_const_pins.set(pin, marker);
+                break;
         }
     }
 
@@ -102,7 +108,7 @@ namespace Pins {
     }
 
     export function saveUserPin(pin: Pin) {
-        addPinToMap(pin, false);
+        addPinToMap(pin, PinType.UserPin);
         storeUserPinsToStorage(retrieveUserPinsFromStorage().concat([pin]));
     }
 
@@ -121,8 +127,8 @@ namespace Pins {
     }
 
     export function initialize() {
-        retrieveUserPinsFromStorage().forEach(pin => { addPinToMap(pin, false); });
-        retrieveConstPinsFromServer().forEach(pin => { addPinToMap(pin, true); });
+        retrieveUserPinsFromStorage().forEach(pin => { addPinToMap(pin, PinType.UserPin); });
+        retrieveConstPinsFromServer().forEach(pin => { addPinToMap(pin, PinType.ConstPin); });
     }
     export function addTo(map: L.Map) {
         temp_marker.addTo(map);
