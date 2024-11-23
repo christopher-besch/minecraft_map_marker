@@ -1,6 +1,8 @@
 # minecraft_map_marker
 A Progressive Web App (PWA) to remember locations on your Minecraft server.
 
+![minecraft_map_marker in action](./minecraft_map_marker_screenshot.png)
+
 Example deployment: https://map.mc.chris-besch.com
 
 As a server admin you can use [MinedMap](https://github.com/neocturne/MinedMap) to create a map of your world.
