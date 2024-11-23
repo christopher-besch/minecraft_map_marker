@@ -10,12 +10,12 @@ This map is what the minecraft_map_marker uses to let your players save pins (lo
 These pins are stored in the [local storage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage) of the PWA and thus private to each player.
 
 Features:
-- [Const pins](#const-pins) defined by the server admin
-- Private pin storage (the minecraft_map_marker is perfect for your secret chest locations)
-- Pin import and export for easy coordinate sharing
-- Nether/Overworld coordinate calculator
-- PWA: Install the minecraft_map_marker on your phone/laptop just as if it where a native app.
-- Fully self-hosted: No trackers, CDN resources or anything else that could harm the user's privacy
+- **[Const pins](#const-pins)** defined by the server admin
+- **Private pin storage** (the minecraft_map_marker is perfect for your secret chest locations)
+- Pin **import and export** via the clipboard for easy coordinate sharing
+- **Nether/Overworld** coordinate calculator
+- **PWA**: Install the minecraft_map_marker on your phone/laptop just as if it where a native app.
+- Fully **self-hosted**: No trackers, CDN resources or anything else that could harm the user's privacy
 
 ## Deployment Directly on Host
 - install node, npm and the typescript compiler (with `npm install -g typescript`)
@@ -40,9 +40,10 @@ See the `docker_minecraft` Ansible role in: https://github.com/christopher-besch
 
 ## Const Pins
 There are two types of pins: User Pins and Const Pins.
--   User Pins are created by the user of the minecraft_map_marker and are only accessible by the user that created the pin.
--   Const Pins are created by the admin and accessible by all users.
+-   **User Pins** are created by the user of the minecraft_map_marker and are only accessible by the user that created the pin.
+-   **Const Pins** are created by the admin and accessible by all users.
     These pins can't be deleted by the user.
     But the user can choose to hide all of them on the map.
     As the server admin export all the pins you want and store the json in the `src/const_pins.json` file.
+
 There is also the temp pin, which isn't stored anywhere, and only shows the user where the coordinates they punched in are on the map.
