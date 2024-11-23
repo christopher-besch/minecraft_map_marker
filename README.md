@@ -18,12 +18,12 @@ Features:
 - Fully self-hosted: No trackers, CDN resources or anything else that could harm the user's privacy
 
 ## Deployment Directly on Host
-- install node, npm and the typescript compile (with `npm install -g typescript`)
+- install node, npm and the typescript compiler (with `npm install -g typescript`)
 - clone the repository and enter the cloned directory
 - `npm install` (needed for leaflet types)
 - `tsc --build`
 
-All that is left to do is run MinedMap over your Minecraft world and put the output in the `src/data` directory: `./minedmap ./world/ ./src/data/`
+All that is left to do is [run MinedMap](https://github.com/neocturne/MinedMap?tab=readme-ov-file#how-to-use) over your Minecraft world and put the output in the `src/data` directory: `./minedmap ./world/ ./src/data/`.
 Substitute `./world/` with the path to your Minecraft world save.
 Now you have the Web App in the `src` directory ready to be server by your web server of choice (i.e. nginx).
 
@@ -32,17 +32,17 @@ minecraft_map_marker comes with a convenient [Docker container](https://hub.dock
 It is designed to work with the [docker_cron container](https://github.com/christopher-besch/docker_cron).
 With this setup the map of your Minecraft server get's updated every five minutes or however often you like.
 
-Take a look at `./example_deployment/docker-compose.yml` for a full setup that you can start with `docker compose up`.
+Take a look at [example_deployment/docker-compose.yml](./example_deployment/docker-compose.yml) for a full setup that you can start with `docker compose up` in the `example_deployment` directory.
 You can access the web app under `http://localhost:80`.
 
 ## Deployment with Ansible
 See the `docker_minecraft` Ansible role in: https://github.com/christopher-besch/docker_setups
 
-# Const Pins
+## Const Pins
 There are two types of pins: User Pins and Const Pins.
 -   User Pins are created by the user of the minecraft_map_marker and are only accessible by the user that created the pin.
 -   Const Pins are created by the admin and accessible by all users.
     These pins can't be deleted by the user.
     But the user can choose to hide all of them on the map.
-
+    As the server admin export all the pins you want and store the json in the `src/const_pins.json` file.
 There is also the temp pin, which isn't stored anywhere, and only shows the user where the coordinates they punched in are on the map.
