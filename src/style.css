@@ -1,3 +1,4 @@
+/* main heading */
 h1 {
     font-size: 30px;
     margin-bottom: 20px;
@@ -5,53 +6,66 @@ h1 {
     text-align: center;
 }
 
+/* new pin, pin list heading */
 h2 {
     font-size: 25px;
     margin-bottom: 10px;
     font-weight: 700;
 }
 
+/* pin item title */
 h3 {
     font-size: 20px;
     margin-bottom: 10px;
     font-weight: 500;
-    /* border-bottom: 2px solid black; */
 }
+
+/* h4 is used for the pins and left as is */
 
 :root {
     /* disable zooming on mobile */
-    /* this is confusing with tha map */
+    /* this is confusing with the map */
     touch-action: pan-x pan-y;
     height: 100%;
 
+    /* Who likes serifs on the web anyways? */
     font-family: sans-serif;
 }
 
+/* constrain the app to the center of the screen on big monitors */
 #container {
     max-width: 1200px;
     margin: 0 auto;
+    /* some breathing space */
     padding-top: 15px;
 }
 
 #map {
+    /* the leaflet map needs a specified height to work */
     height: 70vh;
+    /* placing pins like this is more fun */
     cursor: crosshair;
 }
 
 #map * {
+    /* by default the pins change the cursor to a hand */
     cursor: crosshair;
 }
 
+/* the title of the placed pins on the map */
 .pin-title {
     background-color: white;
     border-radius: 3px;
+    /* center the title under the pin */
     /* the icon has a width of 25px */
     margin-left: calc(-50% + 25px);
     padding: 0 5px;
+
     width: max-content;
     height: max-content;
 }
 
+/* contains the new pin section and pin list */
 #control-container {
     display: flex;
     gap: 10px;
@@ -60,6 +74,7 @@ h3 {
     padding: 15px 0;
 }
 
+/* on phone mobile screens we want the new pin and pin list to be side by side */
 @media only screen and (max-width: 800px) {
     #control-container {
         flex-direction: column;
@@ -67,17 +82,21 @@ h3 {
     }
 
     #control-container>div {
+        /* stretch everything to fill the space available */
         width: 90%;
     }
 }
 
+/* where the user punches in a new pin location */
 #temp-user-input {
     border: 1px solid grey;
     border-radius: 3px;
     padding: 10px;
+    /* don't let it stretch as far down as possible */
     height: fit-content;
 }
 
+/* the grid for coordinate, title, description input */
 #coordinate-input {
     display: grid;
     grid-gap: 5px;
@@ -145,31 +164,21 @@ h3 {
     grid-row: row5-start;
 }
 
-#color-label {
-    grid-column: col1-start;
-    grid-row: row6-start;
-}
-
-#color {
-    grid-column: col2-start / col3-end;
-    grid-row: row6-start;
-}
-
 #pin-list-container {
     border: 1px solid grey;
     border-radius: 3px;
     padding: 10px;
     height: fit-content;
-
-    /* width: 400px; */
 }
 
+/* the scroll container for the pins */
 #pin-list {
     display: flex;
     flex-direction: column;
     gap: 5px;
 
     padding-right: 20px;
+    /* limit the height to force scrolling */
     height: 50vh;
     overflow: scroll;
 }
@@ -186,11 +195,13 @@ h3 {
     justify-content: space-between;
 }
 
+/* the content of the pin without the buttons */
 .pin-content {
     display: flex;
     flex-direction: column;
 }
 
+/* a grid for the coordinates of the pin */
 .pin-item .pin-coordinates {
     display: inline-grid;
     gap: 5px 10px;
@@ -198,12 +209,14 @@ h3 {
     grid-template-rows: auto auto;
 }
 
+/* the button group for the pin */
 .pin-buttons {
     display: flex;
     gap: 5px;
     flex-direction: column;
 }
 
+/* buttons for all pins */
 .pin-list-buttons-container {
     margin-top: 30px;
 

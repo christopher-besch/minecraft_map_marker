@@ -1,29 +1,34 @@
 // from MinedMap
 declare var createMap: () => Promise<[L.Map, L.Layer]>;
 
-type NetherCoords = {
-    x: number;
-    y: number | null;
-    z: number;
-    __brand: 'NetherCoords';
-}
+// differentiating between nether and overworld coordinates makes things a lot safer
 type OverworldCoords = {
     x: number;
     y: number | null;
     z: number;
     __brand: 'OverworldCoords';
 }
+type NetherCoords = {
+    x: number;
+    y: number | null;
+    z: number;
+    __brand: 'NetherCoords';
+}
 
+// a pin as it is stored in the local storage or retrieved from the server
+// const pins and user pins aren't differentiated here
 type Pin = {
     coords: OverworldCoords;
     title: string;
     description: string;
 }
+// if a pin is a user or const pin is stored with this enum outside the pin struct
 enum PinType {
     UserPin,
     ConstPin,
 }
 
+// coordinate calculations
 namespace Coords {
     export function netherToOverworldCoords(coords: NetherCoords): OverworldCoords {
         return { x: coords.x * 8, y: coords.y, z: coords.z * 8, __brand: 'OverworldCoords' };
@@ -36,15 +41,19 @@ namespace Coords {
     }
 }
 
+// controlling pins on the leaflet map and store and retrieve pins to local storage and server
+// call initialize() before anything else
 namespace Pins {
+    // used for the local storage
     const PIN_STORAGE_ID = 'pins';
 
+    // the leaflet map
     let map: L.Map;
 
     // lookup of each user pin's leaflet marker
-    let leaflet_user_pins: Map<Pin, L.Marker> = new Map();
+    let leaflet_user_pins: Map<string, L.Marker> = new Map();
     // lookup of each const pin's leaflet marker
-    let leaflet_const_pins: Map<Pin, L.Marker> = new Map();
+    let leaflet_const_pins: Map<string, L.Marker> = new Map();
 
     // the current coordinate input is reflected with this pin
     // it isn't stored and thus temporary
@@ -52,46 +61,81 @@ namespace Pins {
     // the layer for the leaflet pin markers created by the user
     let leaflet_user_pin_group = L.layerGroup([]);
     // the layer for the leaflet pin markers set by the server
-    // the user can't change these, except for hiding all
+    // the user can't delete these, except for hiding all
     let leaflet_const_pin_group = L.layerGroup([]);
 
-    export function getUserPins(): Pin[] {
-        const raw_pins = localStorage.getItem(PIN_STORAGE_ID);
-        if (raw_pins === null)
-            return [];
-        return JSON.parse(raw_pins);
-    }
-    function setUserPins(pins: Pin[]) {
-        localStorage.setItem(PIN_STORAGE_ID, JSON.stringify(pins));
-    }
-    function syncUserPinStorage() {
-        setUserPins(Array.from(leaflet_user_pins.keys()));
-    }
-    export const getConstPins = async function(): Promise<Pin[]> {
-        const pins = await fetch('./const_pins.json', { cache: 'no-store' }).then((resp) => {
-            if (!resp.ok) {
-                throw new Error(`fetch const_pins.json failed: ${resp.status}`);
-            }
-            return resp.json();
-        }) as Pin[];
+    // take something and return it if it's a lit of pins
+    // return an empty list otherwise
+    export function toPinList(pins: any): Pin[] {
         if (!Array.isArray(pins)) {
-            console.error(`trying to load non-array data from const_pins.json: ${pins}`);
+            console.error(`trying to load non-array data: `);
+            console.error(pins);
             return [];
         }
         if (!pins.every(pin => {
             // TODO: check pin is actualy of type Pin
             return typeof pin === 'object';
         })) {
-            console.error(`trying to load non-pin data from const_pins.json: ${pins}`);
+            console.error(`trying to load non-pin data: `);
+            console.error(pins);
             return [];
         }
         return pins;
     }
 
-    function addPinToMap(pin: Pin, pin_type: PinType) {
+    // retrieve user pins from local storage
+    export function getUserPins(): Pin[] {
+        const raw_pins = localStorage.getItem(PIN_STORAGE_ID);
+        if (raw_pins === null)
+            return [];
+        return toPinList(JSON.parse(raw_pins));
+    }
+    // push changes in leaflet_user_pins to local storage
+    function syncUserPinStorage() {
+        // store pins in local storage
+        function setUserPins(pins: Pin[]) {
+            localStorage.setItem(PIN_STORAGE_ID, JSON.stringify(pins));
+        }
+        let pins_strings = Array.from(leaflet_user_pins.keys());
+        let pins = pins_strings.map(function(pin_str) { return JSON.parse(pin_str) as Pin; });
+        setUserPins(pins);
+    }
+    // retrieve const pins from the server
+    export const getConstPins = async function(): Promise<Pin[]> {
+        const pins = await fetch('./const_pins.json', { cache: 'no-store' }).then((resp) => {
+            if (!resp.ok) {
+                throw new Error(`fetch const_pins.json failed: ${resp.status}`);
+            }
+            return resp.json();
+        });
+        return toPinList(pins);
+    }
+
+    // Find a pin in the leaflet_user_pins or leaflet_const_pins map.
+    function getLeafletPin(pin: Pin, pin_type: PinType): L.Marker | undefined {
+        switch (pin_type) {
+            case PinType.UserPin:
+                return leaflet_user_pins.get(JSON.stringify(pin));
+            case PinType.ConstPin:
+                return leaflet_const_pins.get(JSON.stringify(pin));
+        }
+    }
+
+    // Take a pin and create a new marker for it on the map.
+    // There will be a key-value pair created in leaflet_user_pins or leaflet_const_pins.
+    // Return true iff the pin hasn't been added to the map yet.
+    // Return false otherwise.
+    //
+    // This function doesn't work for the temp pin and also doesn't store a pin item in the pin list.
+    // 
+    // Additionally this function doesn't sync the pins on the map with the local storage.
+    // The caller is required to sync.
+    function addPinToMap(pin: Pin, pin_type: PinType): boolean {
         if (getLeafletPin(pin, pin_type) !== undefined) {
-            console.log(`can't create the same pin twice: ${pin} ${pin_type}`);
-            return;
+            console.log(`can't create the same pin twice: `);
+            console.log(pin);
+            console.log(pin_type);
+            return false;
         }
         function createPinIcon(pin: Pin): L.DivIcon {
             const icon_path = './vendor/leaflet/images/marker-icon.png';
@@ -103,7 +147,6 @@ namespace Pins {
             let img = document.createElement('img');
             img.src = icon_path;
             img.className = 'pin-img';
-
 
             let icon_div = document.createElement('div');
             icon_div.appendChild(img);
@@ -128,51 +171,59 @@ namespace Pins {
         switch (pin_type) {
             case PinType.UserPin:
                 marker.addTo(leaflet_user_pin_group);
-                leaflet_user_pins.set(pin, marker);
+                leaflet_user_pins.set(JSON.stringify(pin), marker);
                 break;
             case PinType.ConstPin:
                 marker.addTo(leaflet_const_pin_group);
-                leaflet_const_pins.set(pin, marker);
+                leaflet_const_pins.set(JSON.stringify(pin), marker);
                 break;
         }
+        return true;
     }
 
+    // Move the temp pin to the specified coordinates.
+    // This doesn't change the coordinates set in the temp user input.
     export function setTempPinCoords(coords: OverworldCoords) {
         temp_marker.setLatLng(Coords.overworldCoordsToLeaflet(coords));
     }
 
+    // Create a new pin on the leaflet map, store it in the local storage and add a pin item to the pin list.
     export function saveUserPin(pin: Pin) {
-        addPinToMap(pin, PinType.UserPin);
-        syncUserPinStorage();
-        PinList.addPinItem(pin, PinType.UserPin);
+        if (addPinToMap(pin, PinType.UserPin)) {
+            syncUserPinStorage();
+            PinList.addPinItem(pin, PinType.UserPin);
+        }
+        // Always focus the pin, even if it already existed before.
+        PinList.focusPin(pin, PinType.UserPin);
         focusPin(pin);
     }
 
-    function getLeafletPin(pin: Pin, pin_type: PinType): L.Marker | undefined {
-        leaflet_user_pins.get(pin);
-
-        switch (pin_type) {
-            case PinType.UserPin:
-                return leaflet_user_pins.get(pin);
-            case PinType.ConstPin:
-                return leaflet_const_pins.get(pin);
-        }
-    }
-
+    // Move the map to that pin.
+    // The pin doesn't have to have a marker on the leaflet map.
     export function focusPin(pin: Pin) {
         map.flyTo(Coords.overworldCoordsToLeaflet(pin.coords), 0.25);
     }
+
+    // Delete the pin's marker from the leaflet map, remove it from the pin list and update the local storage.
     export function deleteUserPin(pin: Pin) {
         let leaflet_pin = getLeafletPin(pin, PinType.UserPin);
         if (leaflet_pin === undefined) {
-            console.error(`can't delete user pin of without a leaflet pin: ${pin}`);
+            console.error(`can't delete user pin without a leaflet pin: `);
+            console.error(pin);
             return;
         }
         leaflet_pin.removeFrom(map);
-        leaflet_user_pins.delete(pin);
+
+        PinList.deleteUserPinFromPinList(pin);
+
+        leaflet_user_pins.delete(JSON.stringify(pin));
         syncUserPinStorage();
     }
 
+    // Add all the required layers to the map and initialize the pins.
+    // This loads the pins from local storage and adds them to the pin list.
+    //
+    // You still need to add the control layers with the getControlLayers function.
     export function initialize(p_map: L.Map) {
         map = p_map;
 
@@ -192,6 +243,9 @@ namespace Pins {
         leaflet_const_pin_group.addTo(map);
         TempPinInput.setTempCoords({ x: 0, y: null, z: 0, __brand: 'OverworldCoords' });
     }
+
+    // There might be other control layers so we don't just add these to the map in the initialize function.
+    // Use this function to do that however you like.
     export function getControlLayers(): { [id: string]: L.Layer } {
         return { 'User Pins': leaflet_user_pin_group, 'Const Pins': leaflet_const_pin_group };
     }
@@ -203,17 +257,21 @@ namespace PinList {
     let import_button = document.getElementById('import') as HTMLButtonElement;
 
     // lookup of each user pin's item
-    let user_pin_items: Map<Pin, HTMLDivElement> = new Map();
+    let user_pin_items: Map<string, HTMLDivElement> = new Map();
     // lookup of each const pin's item
-    let const_pin_items: Map<Pin, HTMLDivElement> = new Map();
+    let const_pin_items: Map<string, HTMLDivElement> = new Map();
 
-    function deleteUserPin(pin: Pin) {
-        let pin_item = user_pin_items.get(pin);
+    // Delete the pin from the pin list.
+    // Don't remove it from the map or update the local storage.
+    export function deleteUserPinFromPinList(pin: Pin) {
+        let pin_item = user_pin_items.get(JSON.stringify(pin));
         if (pin_item === undefined) {
-            console.error(`can't delete user pin of without a pin item: ${pin}`);
+            console.error(`can't delete user pin of without a pin item: `);
+            console.error(pin);
             return;
         }
         pin_list.removeChild(pin_item);
+        user_pin_items.delete(JSON.stringify(pin));
     }
 
     function setButtonMsg(button: HTMLButtonElement, msg: string) {
@@ -270,7 +328,6 @@ namespace PinList {
                     TempPinInput.setTempPin(pin);
 
                     Pins.deleteUserPin(pin);
-                    deleteUserPin(pin);
                 });
                 break;
             case PinType.ConstPin:
@@ -311,33 +368,39 @@ namespace PinList {
 
         switch (pin_type) {
             case PinType.UserPin:
-                user_pin_items.set(pin, pin_item);
+                user_pin_items.set(JSON.stringify(pin), pin_item);
                 break;
             case PinType.ConstPin:
-                const_pin_items.set(pin, pin_item);
+                const_pin_items.set(JSON.stringify(pin), pin_item);
                 break;
         }
 
         pin_list.appendChild(pin_item);
-        // don't use scrollIntoView as that scroll the entire page
-        pin_list.scrollTo({ top: pin_item.offsetTop, behavior: 'smooth' })
+    }
+
+    export function focusPin(pin: Pin, pin_type: PinType) {
+        let pin_item: HTMLDivElement | undefined;
+        switch (pin_type) {
+            case PinType.UserPin:
+                pin_item = user_pin_items.get(JSON.stringify(pin));
+                break;
+            case PinType.ConstPin:
+                pin_item = const_pin_items.get(JSON.stringify(pin));
+                break;
+        }
+        if (pin_item === undefined) {
+            console.error(`can't focus a pin without a pin item: `);
+            console.error(pin);
+            return;
+        }
+        // don't use scrollIntoView as that scrolls the entire page
+        pin_list.scrollTo({ top: pin_item.offsetTop - pin_list.offsetTop, behavior: 'smooth' })
     }
 
     const importPinsFromClipboard = async function() {
         const text = await navigator.clipboard.readText();
-        const pins = JSON.parse(text) as Pin[];
-        if (!Array.isArray(pins)) {
-            console.error(`trying to load non-array data: ${pins}`);
-            return;
-        }
-        pins.forEach(pin => {
-            if (typeof pin !== 'object') {
-                console.error(`trying to load non-pin data: ${pin}`);
-                return;
-            }
-            // TODO: check this is actually a pin
-            Pins.saveUserPin(pin);
-        });
+        const pins = Pins.toPinList(JSON.parse(text));
+        pins.forEach(Pins.saveUserPin);
     }
 
     const exportPinsToClipboard = async function(pins: Pin[]) {
@@ -347,7 +410,7 @@ namespace PinList {
     export function initialize() {
         export_all_button.addEventListener('click', async () => {
             try {
-                await exportPinsToClipboard(Array.from(user_pin_items.keys()));
+                await exportPinsToClipboard(Pins.getUserPins());
             } catch {
                 setButtonMsg(export_all_button, 'Clipboard denied!');
                 return;
