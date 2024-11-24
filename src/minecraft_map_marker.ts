@@ -212,7 +212,7 @@ namespace Pins {
             console.error(pin);
             return;
         }
-        leaflet_pin.removeFrom(map);
+        leaflet_user_pin_group.removeLayer(leaflet_pin);
 
         PinList.deleteUserPinFromPinList(pin);
 
