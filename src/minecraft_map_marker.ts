@@ -8,6 +8,7 @@ type OverworldCoords = {
     z: number;
     __brand: 'OverworldCoords';
 }
+
 type NetherCoords = {
     x: number;
     y: number | null;
@@ -22,6 +23,7 @@ type Pin = {
     title: string;
     description: string;
 }
+
 // if a pin is a user or const pin is stored with this enum outside the pin struct
 enum PinType {
     UserPin,
@@ -33,11 +35,17 @@ namespace Coords {
     export function netherToOverworldCoords(coords: NetherCoords): OverworldCoords {
         return { x: coords.x * 8, y: coords.y, z: coords.z * 8, __brand: 'OverworldCoords' };
     }
+
     export function overworldToNetherCoords(coords: OverworldCoords): NetherCoords {
         return { x: Math.round(coords.x / 8), y: coords.y, z: Math.round(coords.z / 8), __brand: 'NetherCoords' };
     }
+
     export function overworldCoordsToLeaflet(coords: OverworldCoords): L.LatLngExpression {
         return [-coords.z, coords.x];
+    }
+
+    export function leafletLatLngToOverworldCoords(lat_lng: L.LatLng): OverworldCoords {
+        return { x: Math.round(lat_lng.lng), y: null, z: Math.round(-lat_lng.lat), __brand: 'OverworldCoords' };
     }
 }
 
@@ -51,8 +59,10 @@ namespace Pins {
     let map: L.Map;
 
     // lookup of each user pin's leaflet marker
+    // the key is the JSON string of a pin
     let leaflet_user_pins: Map<string, L.Marker> = new Map();
     // lookup of each const pin's leaflet marker
+    // the key is the JSON string of a pin
     let leaflet_const_pins: Map<string, L.Marker> = new Map();
 
     // the current coordinate input is reflected with this pin
@@ -90,6 +100,7 @@ namespace Pins {
             return [];
         return toPinList(JSON.parse(raw_pins));
     }
+
     // push changes in leaflet_user_pins to local storage
     function syncUserPinStorage() {
         // store pins in local storage
@@ -100,6 +111,7 @@ namespace Pins {
         let pins = pins_strings.map(function(pin_str) { return JSON.parse(pin_str) as Pin; });
         setUserPins(pins);
     }
+
     // retrieve const pins from the server
     export const getConstPins = async function(): Promise<Pin[]> {
         const pins = await fetch('./const_pins.json', { cache: 'no-store' }).then((resp) => {
@@ -188,14 +200,18 @@ namespace Pins {
     }
 
     // Create a new pin on the leaflet map, store it in the local storage and add a pin item to the pin list.
-    export function saveUserPin(pin: Pin) {
-        if (addPinToMap(pin, PinType.UserPin)) {
+    // Return true iff the pin has been created.
+    // Return false iff the pin already existed before and no new pin was created.
+    export function saveUserPin(pin: Pin): boolean {
+        const did_create_pin = addPinToMap(pin, PinType.UserPin);
+        if (did_create_pin) {
             syncUserPinStorage();
-            PinList.addPinItem(pin, PinType.UserPin);
+            PinList.addPinItemToPinList(pin, PinType.UserPin);
         }
         // Always focus the pin, even if it already existed before.
         PinList.focusPin(pin, PinType.UserPin);
         focusPin(pin);
+        return did_create_pin;
     }
 
     // Move the map to that pin.
@@ -229,12 +245,12 @@ namespace Pins {
 
         getUserPins().forEach(pin => {
             addPinToMap(pin, PinType.UserPin);
-            PinList.addPinItem(pin, PinType.UserPin);
+            PinList.addPinItemToPinList(pin, PinType.UserPin);
         });
         getConstPins().then((pins) => {
             pins.forEach(pin => {
                 addPinToMap(pin, PinType.ConstPin);
-                PinList.addPinItem(pin, PinType.ConstPin);
+                PinList.addPinItemToPinList(pin, PinType.ConstPin);
             })
         });
 
@@ -251,14 +267,17 @@ namespace Pins {
     }
 }
 
+// controlling the pin list, an overview over all user and const pins.
 namespace PinList {
     let pin_list = document.getElementById('pin-list') as HTMLDivElement;
     let export_all_button = document.getElementById('export-all') as HTMLButtonElement;
     let import_button = document.getElementById('import') as HTMLButtonElement;
 
     // lookup of each user pin's item
+    // the key is the JSON string of a pin
     let user_pin_items: Map<string, HTMLDivElement> = new Map();
     // lookup of each const pin's item
+    // the key is the JSON string of a pin
     let const_pin_items: Map<string, HTMLDivElement> = new Map();
 
     // Delete the pin from the pin list.
@@ -274,6 +293,8 @@ namespace PinList {
         user_pin_items.delete(JSON.stringify(pin));
     }
 
+    // helper function that takes a button and changes its text for a few seconds.
+    // This can be used to signal the user that something happened because they clicked the button.
     function setButtonMsg(button: HTMLButtonElement, msg: string) {
         const default_text = button.textContent;
         const default_disabled = button.disabled;
@@ -285,7 +306,9 @@ namespace PinList {
         }, 2500);
     }
 
-    export function addPinItem(pin: Pin, pin_type: PinType) {
+    // Add a pin to the pin list.
+    // Don't add it to the map or save it to the local storage.
+    export function addPinItemToPinList(pin: Pin, pin_type: PinType) {
         let overworld_coords = pin.coords;
         let nether_coords = Coords.overworldToNetherCoords(overworld_coords);
 
@@ -321,6 +344,7 @@ namespace PinList {
             case PinType.UserPin:
                 delete_button.textContent = "Delete";
                 delete_button.addEventListener('click', (e) => {
+                    // Prevent the pin item to receive this click.
                     e.stopPropagation();
 
                     // move the temp marker to the to be deleted pin
@@ -339,6 +363,7 @@ namespace PinList {
         let export_button = document.createElement('button');
         export_button.textContent = "Export";
         export_button.addEventListener('click', async (e) => {
+            // Prevent the pin item to receive this click.
             e.stopPropagation();
 
             try {
@@ -378,6 +403,7 @@ namespace PinList {
         pin_list.appendChild(pin_item);
     }
 
+    // Scroll the pin list to show the specified pin.
     export function focusPin(pin: Pin, pin_type: PinType) {
         let pin_item: HTMLDivElement | undefined;
         switch (pin_type) {
@@ -397,16 +423,21 @@ namespace PinList {
         pin_list.scrollTo({ top: pin_item.offsetTop - pin_list.offsetTop, behavior: 'smooth' })
     }
 
+    // Load JSON from clipboard and save them.
+    // This function may throw when the input is not valid JSON or the browser denied clipboard access.
     const importPinsFromClipboard = async function() {
         const text = await navigator.clipboard.readText();
         const pins = Pins.toPinList(JSON.parse(text));
         pins.forEach(Pins.saveUserPin);
     }
 
+    // Export the specified pins to JSON and copy to clipboard.
+    // This function may throw when the browser denied clipboard access.
     const exportPinsToClipboard = async function(pins: Pin[]) {
         await navigator.clipboard.writeText(JSON.stringify(pins));
     }
 
+    // Connect the gerneal pin list buttons.
     export function initialize() {
         export_all_button.addEventListener('click', async () => {
             try {
@@ -427,6 +458,8 @@ namespace PinList {
     }
 }
 
+// The temp input is the coordinate user input.
+// The coordinates inputted there control the location of the temp pin.
 namespace TempPinInput {
     let overworld_x_field = document.getElementById('overworld-x') as HTMLInputElement;
     let overworld_z_field = document.getElementById('overworld-z') as HTMLInputElement
@@ -437,12 +470,16 @@ namespace TempPinInput {
     let description_field = document.getElementById('description') as HTMLInputElement
     let save_pin_button = document.getElementById('save-pin') as HTMLButtonElement;
 
+    // Get the user input for the y height.
+    // Return null when input invalid.
     function getHeightInput(): number | null {
         if (!height_field.checkValidity()) {
             return null;
         }
         return parseInt(height_field.value) || null;
     }
+    // Get the user input for the overworld x z.
+    // Return null when input invalid.
     function getOverworldCoordsInput(): OverworldCoords | null {
         if (!overworld_x_field.checkValidity() || !overworld_z_field.checkValidity()) {
             return null;
@@ -454,6 +491,8 @@ namespace TempPinInput {
         }
         return { x, y: getHeightInput(), z, __brand: 'OverworldCoords' };
     }
+    // Get the user input for the nether x z.
+    // Return null when input invalid.
     function getNetherCoordsInput(): NetherCoords | null {
         if (!nether_x_field.checkValidity() || !nether_z_field.checkValidity()) {
             return null;
@@ -465,6 +504,9 @@ namespace TempPinInput {
         }
         return { x, y: getHeightInput(), z, __brand: 'NetherCoords' };
     }
+    // Get the user input for the temp pin.
+    // As the overworld and nether coordinates always align, we only need to look at the overworld coordinates.
+    // Return null when input invalid.
     function getTempPin(): Pin | null {
         const coords = getOverworldCoordsInput();
         if (coords === null)
@@ -483,6 +525,7 @@ namespace TempPinInput {
         return { coords, title, description };
     }
 
+    // Set the coordinates in the temp pin user input to the specified coordinates and move the temp pin on the leaflet map.
     export function setTempCoords(overworld_coords: OverworldCoords) {
         const nether_coords = Coords.overworldToNetherCoords(overworld_coords);
         overworld_x_field.value = String(overworld_coords.x);
@@ -494,12 +537,15 @@ namespace TempPinInput {
         Pins.setTempPinCoords(overworld_coords);
     }
 
+    // Set the coordinates in the temp pin user input to the specified coordinates and move the temp pin on the leaflet map.
+    // Also set the input title and description.
     export function setTempPin(pin: Pin) {
         setTempCoords(pin.coords);
         title_field.value = pin.title;
         description_field.value = pin.description;
     }
 
+    // Connect the temp pin user input.
     export function initialize() {
         function updateCoordsFromOverworld() {
             const coords = getOverworldCoordsInput();
@@ -514,8 +560,9 @@ namespace TempPinInput {
             setTempCoords(Coords.netherToOverworldCoords(coords));
         }
 
-        // only these fields change other things
-        // all other fields only affect things when then `Save Pin` button is clicked
+        // Always keep the overworld and nether coordinates synced.
+        // Only these fields change other things.
+        // All other fields only affect things when then `Save Pin` button is clicked.
         overworld_x_field.addEventListener('keyup', updateCoordsFromOverworld);
         overworld_z_field.addEventListener('keyup', updateCoordsFromOverworld);
         nether_x_field.addEventListener('keyup', updateCoordsFromNether);
@@ -527,21 +574,26 @@ namespace TempPinInput {
                 console.log("temp pin is invalid; can't save");
                 return;
             }
-            Pins.saveUserPin(pin);
-            title_field.value = '';
-            description_field.value = '';
+            const did_create_pin = Pins.saveUserPin(pin);
+            if (did_create_pin) {
+                // reset the title and description as the user is unlikely to create the same pin twice.
+                title_field.value = '';
+                description_field.value = '';
+            }
         }
         save_pin_button.addEventListener('click', savePinFromTemp);
     }
 }
 
+// initialize the web app
 const initialize = async () => {
+    // Load the MineMap leaflet map.
     const [map, light_layer] = await createMap();
     Pins.initialize(map);
     L.control.layers({}, Object.assign({}, { 'Illumination': light_layer }, Pins.getControlLayers())).addTo(map);
 
     map.on('click', function(e) {
-        TempPinInput.setTempCoords({ x: Math.round(e.latlng.lng), y: null, z: Math.round(-e.latlng.lat), __brand: 'OverworldCoords' });
+        TempPinInput.setTempCoords(Coords.leafletLatLngToOverworldCoords(e.latlng));
     });
 
     TempPinInput.initialize();
