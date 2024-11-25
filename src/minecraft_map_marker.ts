@@ -219,7 +219,13 @@ namespace Pins {
     // Move the map to that pin.
     // The pin doesn't have to have a marker on the leaflet map.
     export function focusPin(pin: Pin) {
-        map.flyTo(Coords.overworldCoordsToLeaflet(pin.coords), 0.25);
+        focusCoords(pin.coords);
+    }
+
+    // Move the map to those coordinates.
+    // This is handy when only the coordinates of a pin are available.
+    export function focusCoords(coords: OverworldCoords) {
+        map.flyTo(Coords.overworldCoordsToLeaflet(coords), 0.25);
     }
 
     // Delete the pin's marker from the leaflet map, remove it from the pin list and update the local storage.
@@ -474,6 +480,7 @@ namespace TempPinInput {
     let title_field = document.getElementById('title') as HTMLInputElement
     let description_field = document.getElementById('description') as HTMLInputElement
     let save_pin_button = document.getElementById('save-pin') as HTMLButtonElement;
+    let move_to_temp_pin = document.getElementById('move-to-temp') as HTMLButtonElement;
 
     // Get the user input for the y height.
     // Return null when input invalid.
@@ -587,6 +594,14 @@ namespace TempPinInput {
             }
         }
         save_pin_button.addEventListener('click', savePinFromTemp);
+        function moveToTempPin() {
+            const coords = getOverworldCoordsInput();
+            if (coords === null)
+                return;
+            Pins.focusCoords(coords);
+        }
+        move_to_temp_pin.addEventListener('click', moveToTempPin);
+
     }
 }
 

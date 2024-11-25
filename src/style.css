@@ -164,6 +164,13 @@ h3 {
     grid-row: row5-start;
 }
 
+/* the buttons in the temp pin input */
+#temp-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
 #pin-list-container {
     border: 1px solid grey;
     border-radius: 3px;
