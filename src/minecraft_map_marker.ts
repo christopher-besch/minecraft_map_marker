@@ -113,10 +113,12 @@ namespace Pins {
     }
 
     // retrieve const pins from the server
+    // this function never throws and returns [] on error
     export const getConstPins = async function(): Promise<Pin[]> {
         const pins = await fetch('./const_pins.json', { cache: 'no-store' }).then((resp) => {
             if (!resp.ok) {
-                throw new Error(`fetch const_pins.json failed: ${resp.status}`);
+                console.error(`fetch const_pins.json failed: ${resp.status}`);
+                return [];
             }
             return resp.json();
         });
@@ -243,15 +245,18 @@ namespace Pins {
     export function initialize(p_map: L.Map) {
         map = p_map;
 
-        getUserPins().forEach(pin => {
-            addPinToMap(pin, PinType.UserPin);
-            PinList.addPinItemToPinList(pin, PinType.UserPin);
-        });
+        // Const pins first as user pins are added to the list on the bottom.
+        // That keeps the order the same.
         getConstPins().then((pins) => {
             pins.forEach(pin => {
                 addPinToMap(pin, PinType.ConstPin);
                 PinList.addPinItemToPinList(pin, PinType.ConstPin);
             })
+            // Do this here to have the const pins added already.
+            getUserPins().forEach(pin => {
+                addPinToMap(pin, PinType.UserPin);
+                PinList.addPinItemToPinList(pin, PinType.UserPin);
+            });
         });
 
         temp_marker.addTo(map);
