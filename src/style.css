@@ -104,52 +104,52 @@ h3 {
     grid-template-rows: [row1-start] auto [row2-start] auto [row3-start] auto [row4-start] auto [row5-start] auto [row6-start] auto [row6-end];
 }
 
-#overworld-label {
+#title-label {
     grid-column: col1-start;
     grid-row: row1-start;
+}
+
+#title {
+    grid-column: col2-start / col3-end;
+    grid-row: row1-start;
+}
+
+#overworld-label {
+    grid-column: col1-start;
+    grid-row: row2-start;
 }
 
 #overworld-x {
     grid-column: col2-start;
-    grid-row: row1-start;
+    grid-row: row2-start;
 }
 
 #overworld-z {
     grid-column: col3-start;
-    grid-row: row1-start;
+    grid-row: row2-start;
 }
 
 #nether-label {
     grid-column: col1-start;
-    grid-row: row2-start;
+    grid-row: row3-start;
 }
 
 #nether-x {
     grid-column: col2-start;
-    grid-row: row2-start;
+    grid-row: row3-start;
 }
 
 #nether-z {
     grid-column: col3-start;
-    grid-row: row2-start;
+    grid-row: row3-start;
 }
 
 #height-label {
     grid-column: col1-start;
-    grid-row: row3-start;
-}
-
-#height {
-    grid-column: col2-start / col3-end;
-    grid-row: row3-start;
-}
-
-#title-label {
-    grid-column: col1-start;
     grid-row: row4-start;
 }
 
-#title {
+#height {
     grid-column: col2-start / col3-end;
     grid-row: row4-start;
 }

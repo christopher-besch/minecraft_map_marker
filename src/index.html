@@ -32,6 +32,9 @@
                 <form>
                     <h2>New Pin</h2>
                     <div id="coordinate-input">
+                        <label id="title-label" for="titel">Title</label>
+                        <input type="text" id="title" />
+
                         <label id="overworld-label">Overworld: x z</label>
                         <input type="text" inputmode="numeric" pattern="-?\d+" id="overworld-x" maxlength="9" />
                         <input type="text" inputmode="numeric" pattern="-?\d+" id="overworld-z" maxlength="9" />
@@ -43,11 +46,8 @@
                         <label id="height-label" for="height">Height: y</label>
                         <input type="text" inputmode="numeric" pattern="-?\d+" id="height" maxlength="9" />
 
-                        <label id="title-label" for="titel">Title</label>
-                        <input type="text" id="title" />
-
                         <label id="description-label" for="description">Description</label>
-                        <textarea id="description" rows="4" cols="50"></textarea>
+                        <textarea id="description" rows="1" cols="50"></textarea>
                     </div>
                     <div id="temp-buttons">
                         <button type="button" id="save-pin">Save Pin</button>
