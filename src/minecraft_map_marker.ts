@@ -1,5 +1,5 @@
 // from MinedMap
-declare var createMap: () => Promise<[L.Map, L.Layer]>;
+declare var createMap: (cache_buster: string) => Promise<[L.Map, L.Layer]>;
 
 // differentiating between nether and overworld coordinates makes things a lot safer
 type OverworldCoords = {
@@ -607,8 +607,11 @@ namespace TempPinInput {
 
 // initialize the web app
 const initialize = async () => {
+    // Reload the map images everytime the website reloads.
+    // On most deployments the map is updated every five minutes so reflect that in the user interface.
+    const cache_buster = (Math.random() + 1).toString(36).substring(6);
     // Load the MineMap leaflet map.
-    const [map, light_layer] = await createMap();
+    const [map, light_layer] = await createMap(cache_buster);
     Pins.initialize(map);
     L.control.layers({}, Object.assign({}, { 'Illumination': light_layer }, Pins.getControlLayers())).addTo(map);
 

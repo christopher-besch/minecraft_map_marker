@@ -43,7 +43,7 @@ function contains(array, elem) {
 }
 
 const MinedMapLayer = L.TileLayer.extend({
-    initialize: function(mipmaps, layer) {
+    initialize: function(mipmaps, layer, cache_buster) {
         L.TileLayer.prototype.initialize.call(this, '', {
             detectRetina: true,
             tileSize: 512,
@@ -58,6 +58,8 @@ const MinedMapLayer = L.TileLayer.extend({
 
         this.mipmaps = mipmaps;
         this.layer = layer;
+
+        this.cache_buster = cache_buster;
     },
 
     createTile: function(coords, done) {
@@ -82,12 +84,13 @@ const MinedMapLayer = L.TileLayer.extend({
             return L.Util.emptyImageUrl;
 
 
-        return 'data/' + this.layer + '/' + z + '/r.' + coords.x + '.' + coords.y + '.png';
+        return 'data/' + this.layer + '/' + z + '/r.' + coords.x + '.' + coords.y + '.png?cache_buster=' + this.cache_buster;
     },
 });
 
-// this function is a shortened version of the original from the MinedMap Viewer
-createMap = async function() {
+// This function is a shortened version of the original from the MinedMap Viewer.
+// It also contains the cache_buster feature that didn't exist upstream.
+createMap = async function(cache_buster) {
     const { mipmaps, spawn } = await fetch('./data/info.json', { cache: 'no-store' }).then((resp) => {
         if (!resp.ok) {
             throw new Error(`fetch info.json failed: ${resp.status}`);
@@ -107,9 +110,9 @@ createMap = async function() {
             [-512 * mipmaps[0].bounds.minZ, 512 * (mipmaps[0].bounds.maxX + 1)],
         ],
     });
-    const mapLayer = new MinedMapLayer(mipmaps, 'map');
+    const mapLayer = new MinedMapLayer(mipmaps, 'map', cache_buster);
     mapLayer.addTo(map);
-    const lightLayer = new MinedMapLayer(mipmaps, 'light');
+    const lightLayer = new MinedMapLayer(mipmaps, 'light', cache_buster);
 
     return [map, lightLayer];
 }
