@@ -1,2 +1,3 @@
 src/data/
 src/*.js
+src/const_pins.json
